@@ -5,7 +5,7 @@ project(aoc2023 LANGUAGES Swift)
 set( BINARY_NAME 1)
 
 set( SOURCES
-  Sources/main.swift
+  1.swift
 )
 
 add_executable(${BINARY_NAME} ${SOURCES})
