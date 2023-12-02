@@ -20,12 +20,12 @@ bool get_number_at(const char * str, int index, int * digit)
   }
   else
   {
-    for (int i = 0; i < 10; i++)
+    for (int number_index = 0; number_index < 10; number_index++)
     {
-      if (strncmp(str + index, numbers[i], strlen(numbers[i])) == 0)
+      if (strncmp(str + index, numbers[number_index], strlen(numbers[number_index])) == 0)
       {
         found = true;
-        *digit = i;
+        *digit = number_index;
         break;
       }
     }
