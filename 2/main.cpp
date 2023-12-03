@@ -3,6 +3,7 @@
 #include <list>
 #include <regex>
 #include <sstream>
+#include <cstring>
 
 const std::string input_filename = "input.txt";
 
