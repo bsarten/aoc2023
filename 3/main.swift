@@ -109,27 +109,14 @@ class Schematic{
             return 0
         }
 
-        var number_of_parts = 0
-        var gear_ratio = 1
-
-        var checked_parts_set = Set<Int>()
-
-        for check_row in row-1...row+1 {
-            for check_col in col-1...col+1 {
-                if check_row >= 0 && check_row < schematic.rowCount && check_col >= 0 && check_col < schematic.colCount {
-                    if let part_number = getPartNumber(check_row, check_col){
-                        if !checked_parts_set.contains(part_number.number) {
-                            checked_parts_set.insert(part_number.number)
-                            number_of_parts += 1
-                            gear_ratio *= part_number.number
-                        }
-                    }
-                }
-            }
+        let gear_parts = part_numbers.filter{
+            $0.colRange.contains(col-1) && (row - 1...row + 1).contains($0.row) ||
+            $0.colRange.contains(col) && (row - 1...row + 1).contains($0.row) ||
+            $0.colRange.contains(col+1) && (row - 1...row + 1).contains($0.row)
         }
 
-        if number_of_parts == 2 {
-            return gear_ratio
+        if gear_parts.count == 2 {
+            return gear_parts[0].number * gear_parts[1].number
         }
         else {
             return 0
