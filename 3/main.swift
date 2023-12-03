@@ -104,7 +104,7 @@ class Schematic{
         return false
     }
 
-    func getGearRatioAt(_ part_numbers : inout [PartNumber], _ row : Int, _ col : Int) -> Int {
+    func getGearRatioAt(_ row : Int, _ col : Int) -> Int {
         if data[row][col] != "*" {
             return 0
         }
@@ -165,7 +165,7 @@ var ratio_sum = 0
 for row in 0...schematic.rowCount - 1 {
     for col in 0...schematic.colCount - 1 {
         if schematic[row,col] == "*" {
-            ratio_sum += schematic.getGearRatioAt(&part_numbers, row, col)
+            ratio_sum += schematic.getGearRatioAt(row, col)
         }
     }
 }
