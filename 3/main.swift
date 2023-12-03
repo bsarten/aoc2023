@@ -23,6 +23,7 @@ class PartNumber {
 
 class Schematic{
     private var data = [[Character]]()
+    var partNumbers = [PartNumber]()
 
     init(filename : String){
         if freopen(filename, "r", stdin) == nil {
@@ -54,8 +55,6 @@ class Schematic{
             return data[0].count
         }
     }
-
-    var partNumbers = [PartNumber]()
 
     private func parsePartNumbers() {
         for row in 0...rowCount - 1 {
