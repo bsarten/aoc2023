@@ -11,7 +11,6 @@ struct Card
         self.my_numbers = my_numbers
         self.ticket_numbers = ticket_numbers
         winning_numbers = my_numbers.intersection(ticket_numbers)
-
     }
 
     func score() -> Int {
@@ -28,6 +27,7 @@ func part1(_ cards : [Card]){
     for card_index in 0..<cards.count {
         sum += cards[card_index].score()
     }
+
     print(sum)
 }
 
