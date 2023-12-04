@@ -33,7 +33,7 @@ func score(_ intersection : Set<Int>) -> Int
 
 func part1(_ cards : [Card]){
     var sum = 0
-    for i in 0...cards.count - 1 {
+    for i in 0..<cards.count {
         let intersection = cards[i].my_numbers.intersection(cards[i].ticket_numbers)
         sum += score(intersection)
     }
@@ -42,7 +42,7 @@ func part1(_ cards : [Card]){
 
 func part2(_ cards : inout [Card]){
     var sum = 0
-    for card_index in 0...cards.count - 1 {
+    for card_index in 0..<cards.count {
         let intersection = cards[card_index].my_numbers.intersection(cards[card_index].ticket_numbers)
         if intersection.count > 0 {
             for copy_index in card_index + 1...card_index + intersection.count {
