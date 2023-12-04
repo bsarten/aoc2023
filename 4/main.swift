@@ -2,11 +2,16 @@ import Foundation
 
 struct Card
 {
+    var my_numbers = Set<String>()
+    var ticket_numbers = Set<String>()
     var winning_numbers = Set<String>()
     var copies = 1
 
     init(_ ticket_numbers : Set<String>, _ my_numbers : Set<String>){
+        self.my_numbers = my_numbers
+        self.ticket_numbers = ticket_numbers
         winning_numbers = my_numbers.intersection(ticket_numbers)
+
     }
 
     func score() -> Int {
