@@ -39,17 +39,13 @@ func part1(_ cards : [Card]){
 func part2(_ cards : inout [Card]){
     var sum = 0
     for card_index in 0...cards.count - 1 {
-        while (cards[card_index].copies > 0)
-        {
-            let intersection = cards[card_index].my_numbers.intersection(cards[card_index].ticket_numbers)
-            sum += 1
-            if intersection.count > 0 {
-                for copy_index in card_index + 1...card_index + intersection.count {
-                    cards[copy_index].copies += 1
-                }
+        let intersection = cards[card_index].my_numbers.intersection(cards[card_index].ticket_numbers)
+        if intersection.count > 0 {
+            for copy_index in card_index + 1...card_index + intersection.count {
+                cards[copy_index].copies += cards[card_index].copies
             }
-            cards[card_index].copies -= 1
         }
+        sum += cards[card_index].copies
     }
 
     print(sum)
