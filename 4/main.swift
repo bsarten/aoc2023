@@ -2,31 +2,27 @@ import Foundation
 
 struct Card
 {
-    var ticket_numbers = Set<Int>()
-    var my_numbers = Set<Int>()
+    var ticket_numbers = Set<String>()
+    var my_numbers = Set<String>()
     var copies = 1
 
-    init(_ ticket_numbers : Set<Int>, _ my_numbers : Set<Int>){
+    init(_ ticket_numbers : Set<String>, _ my_numbers : Set<String>){
         self.ticket_numbers = ticket_numbers
         self.my_numbers = my_numbers
     }
 }
 
 
-func get_number_set(_ number_str : String) -> Set<Int>{
-    var new_set = Set<Int>()
+func get_number_set(_ number_str : String) -> Set<String>{
     let number_array = number_str.split(separator: " ")
-    for number in number_array {
-        new_set.insert(Int(number)!)
-    }
-    return new_set
+    return Set(number_array.map{String($0)})
 }
 
-func score(_ intersection : Set<Int>) -> Int
+func score(_ intersection : Set<String>) -> Int
 {
     var score = 0
     if intersection.count > 0{
-        score = Int(pow(Double(2), Double(intersection.count - 1)))
+        score = Int(pow(2.0, Double(intersection.count - 1)))
     }
     return score
 }
@@ -41,7 +37,6 @@ func part1(_ cards : [Card]){
 }
 
 func part2(_ cards : inout [Card]){
-    var sum = 0
     for card_index in 0..<cards.count {
         let intersection = cards[card_index].my_numbers.intersection(cards[card_index].ticket_numbers)
         if intersection.count > 0 {
@@ -49,10 +44,9 @@ func part2(_ cards : inout [Card]){
                 cards[copy_index].copies += cards[card_index].copies
             }
         }
-        sum += cards[card_index].copies
     }
 
-    print(sum)
+    print(cards.reduce(0){$0 + $1.copies})
 }
 
 let input_path = Process().currentDirectoryURL!.path + "/input.txt"
