@@ -2,39 +2,35 @@ import Foundation
 
 struct Card
 {
-    var ticket_numbers = Set<String>()
-    var my_numbers = Set<String>()
+    var winning_numbers = Set<String>()
     var copies = 1
 
     init(_ ticket_numbers : Set<String>, _ my_numbers : Set<String>){
-        self.ticket_numbers = ticket_numbers
-        self.my_numbers = my_numbers
+        winning_numbers = my_numbers.intersection(ticket_numbers)
     }
 }
 
-func score(_ intersection : Set<String>) -> Int
+func score(_ winning_numbers : Set<String>) -> Int
 {
     var score = 0
-    if intersection.count > 0{
-        score = Int(pow(2.0, Double(intersection.count - 1)))
+    if winning_numbers.count > 0{
+        score = Int(pow(2.0, Double(winning_numbers.count - 1)))
     }
     return score
 }
 
 func part1(_ cards : [Card]){
     var sum = 0
-    for i in 0..<cards.count {
-        let intersection = cards[i].my_numbers.intersection(cards[i].ticket_numbers)
-        sum += score(intersection)
+    for card_index in 0..<cards.count {
+        sum += score(cards[card_index].winning_numbers)
     }
     print(sum)
 }
 
 func part2(_ cards : inout [Card]){
     for card_index in 0..<cards.count {
-        let intersection = cards[card_index].my_numbers.intersection(cards[card_index].ticket_numbers)
-        if intersection.count > 0 {
-            for copy_index in card_index + 1...card_index + intersection.count {
+        if cards[card_index].winning_numbers.count > 0 {
+            for copy_index in card_index + 1...card_index + cards[card_index].winning_numbers.count {
                 cards[copy_index].copies += cards[card_index].copies
             }
         }
