@@ -2,10 +2,14 @@ import Foundation
 
 struct Card
 {
-    var id = 0
     var ticket_numbers = Set<Int>()
     var my_numbers = Set<Int>()
     var copies = 1
+
+    init(_ ticket_numbers : Set<Int>, _ my_numbers : Set<Int>){
+        self.ticket_numbers = ticket_numbers
+        self.my_numbers = my_numbers
+    }
 }
 
 
@@ -60,13 +64,11 @@ if freopen(input_path, "r", stdin) == nil {
 
 var cards = [Card]()
 while let line = readLine() {
-    let search = #/^Card\s+([\d]+):(.*) \| (.*)$/#
+    let search = #/^Card\s+[\d]+:(.*) \| (.*)$/#
     let matches = line.wholeMatch(of:search)?.output
-    var new_card = Card() 
-    new_card.id = Int(matches!.1)!
-    new_card.ticket_numbers = get_number_set(String(matches!.2))
-    new_card.my_numbers = get_number_set(String(matches!.3))
-    cards.append(new_card)
+    let ticket_numbers = get_number_set(String(matches!.1))
+    let my_numbers = get_number_set(String(matches!.2))
+    cards.append(Card(ticket_numbers, my_numbers))
 }
 
 part1(cards)
