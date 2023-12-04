@@ -2,21 +2,21 @@ import Foundation
 
 struct Card
 {
-    var my_numbers = Set<String>()
-    var ticket_numbers = Set<String>()
-    var winning_numbers = Set<String>()
+    var my_numbers : Set<String>
+    var ticket_numbers : Set<String>
+    var winning_numbers : Set<String>
     var copies = 1
 
     init(_ ticket_numbers : Set<String>, _ my_numbers : Set<String>){
         self.my_numbers = my_numbers
         self.ticket_numbers = ticket_numbers
-        winning_numbers = my_numbers.intersection(ticket_numbers)
+        self.winning_numbers = my_numbers.intersection(ticket_numbers)
     }
 
     func score() -> Int {
         var score = 0
         if winning_numbers.count > 0{
-            score = Int(pow(2.0, Double(winning_numbers.count - 1)))
+            score = 1 << (winning_numbers.count - 1)
         }
         return score
     }
