@@ -12,12 +12,6 @@ struct Card
     }
 }
 
-
-func get_number_set(_ number_str : String) -> Set<String>{
-    let number_array = number_str.split(separator: " ")
-    return Set(number_array.map{String($0)})
-}
-
 func score(_ intersection : Set<String>) -> Int
 {
     var score = 0
@@ -60,8 +54,8 @@ var cards = [Card]()
 while let line = readLine() {
     let search = #/^Card\s+[\d]+:(.*) \| (.*)$/#
     let matches = line.wholeMatch(of:search)?.output
-    let ticket_numbers = get_number_set(String(matches!.1))
-    let my_numbers = get_number_set(String(matches!.2))
+    let ticket_numbers = Set(matches!.1.components(separatedBy: " ").filter{!$0.isEmpty})
+    let my_numbers = Set(matches!.2.components(separatedBy: " ").filter{!$0.isEmpty})
     cards.append(Card(ticket_numbers, my_numbers))
 }
 
