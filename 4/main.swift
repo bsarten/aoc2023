@@ -8,21 +8,20 @@ struct Card
     init(_ ticket_numbers : Set<String>, _ my_numbers : Set<String>){
         winning_numbers = my_numbers.intersection(ticket_numbers)
     }
-}
 
-func score(_ winning_numbers : Set<String>) -> Int
-{
-    var score = 0
-    if winning_numbers.count > 0{
-        score = Int(pow(2.0, Double(winning_numbers.count - 1)))
+    func score() -> Int {
+        var score = 0
+        if winning_numbers.count > 0{
+            score = Int(pow(2.0, Double(winning_numbers.count - 1)))
+        }
+        return score
     }
-    return score
 }
 
 func part1(_ cards : [Card]){
     var sum = 0
     for card_index in 0..<cards.count {
-        sum += score(cards[card_index].winning_numbers)
+        sum += cards[card_index].score()
     }
     print(sum)
 }
