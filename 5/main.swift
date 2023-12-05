@@ -42,7 +42,7 @@ struct Recipes
     }
 }
 
-func find_location(_ recipes : inout Recipes, _ recipe_name : String, _ number : UInt64) -> UInt64 {
+func find_minimum_location(_ recipes : inout Recipes, _ recipe_name : String, _ number : UInt64) -> UInt64 {
     if recipe_name == "location" {
         return number
     }
@@ -50,14 +50,14 @@ func find_location(_ recipes : inout Recipes, _ recipe_name : String, _ number :
     for check_recipe in recipes.destination_to_recipe[recipe_name]! {
         if check_recipe.source_range.contains(number) {
             let destination_number = check_recipe.destination_range.first! + number - check_recipe.source_range.first!
-            return find_location(&recipes, check_recipe.destination, destination_number)
+            return find_minimum_location(&recipes, check_recipe.destination, destination_number)
         }
     }
 
-    return find_location(&recipes, recipes.destination_to_recipe[recipe_name]![0].destination, number)
+    return find_minimum_location(&recipes, recipes.destination_to_recipe[recipe_name]![0].destination, number)
 }
 
-func find_location(_ recipes : inout Recipes, _ recipe_name : String, _ number_range : ClosedRange<UInt64>) -> UInt64 {
+func find_minimum_location(_ recipes : inout Recipes, _ recipe_name : String, _ number_range : ClosedRange<UInt64>) -> UInt64 {
     if recipe_name == "location" {
         return number_range.first!
     }
@@ -68,13 +68,13 @@ func find_location(_ recipes : inout Recipes, _ recipe_name : String, _ number_r
         if let intersection = check_recipe.source_range.intersection(number_range) {
             let destination_range_begin = check_recipe.destination_range.first! + intersection.first! - check_recipe.source_range.first!
             let destination_range_end = destination_range_begin + UInt64(intersection.count) - 1
-            let location = find_location(&recipes, check_recipe.destination, destination_range_begin...destination_range_end)
+            let location = find_minimum_location(&recipes, check_recipe.destination, destination_range_begin...destination_range_end)
             min_location = Swift.min(min_location ?? location, location)
         }
     }
 
     if min_location == nil {
-        let location = find_location(&recipes, recipes.destination_to_recipe[recipe_name]![0].destination, number_range)
+        let location = find_minimum_location(&recipes, recipes.destination_to_recipe[recipe_name]![0].destination, number_range)
         min_location = Swift.min(min_location ?? location, location)
     }
     return min_location!
@@ -123,17 +123,18 @@ while let header_line = readLine() {
 // part 1
 var min_location : UInt64? = nil
 for seed in recipes.seeds {
-    let location = find_location(&recipes, "seed", seed)
+    let location = find_minimum_location(&recipes, "seed", seed)
     min_location = Swift.min(min_location ?? location, location)
 }
 
 print(min_location ?? "nil")
 
+// part 2
 min_location = nil
 
 for i in 0..<recipes.seeds.count where i % 2 == 0 {
     let seed_range = recipes.seeds[i]...(recipes.seeds[i+1] + recipes.seeds[i] - 1)
-    let location = find_location(&recipes, "seed", seed_range)
+    let location = find_minimum_location(&recipes, "seed", seed_range)
     min_location = Swift.min(min_location ?? location, location)
 }
 
