@@ -1,22 +1,5 @@
 import Foundation
 
-// shamelessly stolen from https://forums.swift.org/t/add-range-intersect-to-the-standard-library-analogous-to-nsintersectionrange/16757 
-extension ClosedRange {
-    public func intersection(_ other: ClosedRange<Bound>) -> ClosedRange<Bound>? {
-        let lowerBoundMax = Swift.max(self.lowerBound, other.lowerBound)
-        let upperBoundMin = Swift.min(self.upperBound, other.upperBound)
-
-        let lowerBeforeUpper = lowerBoundMax <= self.upperBound && lowerBoundMax <= other.upperBound
-        let upperBeforeLower = upperBoundMin >= self.lowerBound && upperBoundMin >= other.lowerBound
-
-        if lowerBeforeUpper && upperBeforeLower {
-            return lowerBoundMax...upperBoundMin
-        }
-
-        return nil
-    }
-}
-
 let input_path = Process().currentDirectoryURL!.path + "/input.txt"
 
 if freopen(input_path, "r", stdin) == nil {
@@ -53,4 +36,5 @@ for time_held in 1..<time {
         num_ways += 1
     }
 }
+
 print(num_ways)
