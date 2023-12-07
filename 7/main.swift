@@ -131,7 +131,8 @@ func part1(_ lines : [String]) {
 
     for line in lines {
         let hand_bid_array = line.components(separatedBy: " ")
-        hands.append(Hand(hand_bid_array[0], Int(hand_bid_array[1])!, using_jokers: false))
+        let new_hand = Hand(hand_bid_array[0], Int(hand_bid_array[1])!, using_jokers: false) 
+        hands.append(new_hand)
     }
 
     var sum = 0
@@ -148,7 +149,8 @@ func part2(_ lines : [String]) {
     Hand.card_value["J"] = 1
     for line in lines {
         let hand_bid_array = line.components(separatedBy: " ")
-        hands.append(Hand(hand_bid_array[0], Int(hand_bid_array[1])!, using_jokers: true))
+        let new_hand = Hand(hand_bid_array[0], Int(hand_bid_array[1])!, using_jokers: true) 
+        hands.append(new_hand)
     }
 
     var sum = 0
