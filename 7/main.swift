@@ -10,7 +10,17 @@ struct CardCollectionCounts {
 struct Hand {
     let cards : String
     let bid : Int
-    let hand_type : Int
+    let hand_rank : HandRank
+    enum HandRank : Int {
+        case five_kind = 7
+        case four_kind = 6
+        case full_house = 5
+        case three_kind = 4
+        case two_pair = 3
+        case one_pair = 2
+        case high_card = 1
+    }
+
     static var card_value = [
         "2" : 2,
         "3" : 3,
@@ -43,10 +53,10 @@ struct Hand {
             let card_count = Hand.getCardCounts(cards)
             let max_card = card_count.max(by: {($0.key == "J" ? 0 : $0.value) < ($1.key == "J" ? 0 : $1.value)})
             let cards_joker_replaced = String(cards.map{$0 == "J" ? max_card!.key : $0})
-            self.hand_type = Hand.getHandType(cards_joker_replaced)
+            self.hand_rank = Hand.getHandRank(cards_joker_replaced)
         }
         else {
-            self.hand_type = Hand.getHandType(cards)
+            self.hand_rank = Hand.getHandRank(cards)
         }
     }
 
@@ -72,37 +82,37 @@ struct Hand {
         return counts
     }
 
-    static func getHandType(_ cards : String) -> Int {
-        var hand_type : Int
+    static func getHandRank(_ cards : String) -> HandRank {
+        var hand_rank : HandRank
         let card_collection_counts = getCardCollectionCounts(cards)
 
         if card_collection_counts.fives == 1 {
-            hand_type = 7
+            hand_rank = HandRank.five_kind
         }
         else if card_collection_counts.fours == 1 {
-            hand_type = 6
+            hand_rank = HandRank.four_kind
         }
         else if card_collection_counts.pairs == 1 && card_collection_counts.threes == 1 {
-            hand_type = 5
+            hand_rank = HandRank.full_house
         }
         else if card_collection_counts.threes == 1 {
-            hand_type = 4
+            hand_rank = HandRank.three_kind
         }
         else if card_collection_counts.pairs == 2 {
-            hand_type = 3
+            hand_rank = HandRank.two_pair
         }
         else if card_collection_counts.pairs == 1 {
-            hand_type = 2
+            hand_rank = HandRank.one_pair
         }
         else {
-            hand_type = 1
+            hand_rank = HandRank.high_card
         }
 
-       return hand_type
+       return hand_rank
     }
 
     static func < (lhs : Hand, rhs : Hand) -> Bool {
-        if lhs.hand_type == rhs.hand_type {
+        if lhs.hand_rank.rawValue == rhs.hand_rank.rawValue {
             let rhs_cards = Array(rhs.cards)
             let lhs_cards = Array(lhs.cards)
             for i in 0...4 {
@@ -112,7 +122,7 @@ struct Hand {
             }
         }
 
-        return lhs.hand_type < rhs.hand_type
+        return lhs.hand_rank.rawValue < rhs.hand_rank.rawValue
     }
 }
 
