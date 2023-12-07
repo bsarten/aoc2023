@@ -163,19 +163,16 @@ if freopen(input_path, "r", stdin) == nil {
     exit(1)
 }
 
-// part 1
+// part 2
 var hands = [Hand]()
 while let line = readLine() {
     let hand_bid_array = line.components(separatedBy: " ")
     hands.append(Hand(hand_bid_array[0], Int(hand_bid_array[1])!))
 }
 
-hands.sort(by: <)
-var i = 1
 var sum = 0
-for hand in hands {
-    sum += hand.bid * i
-    i += 1
+for (rank, hand) in hands.sorted(by: <).enumerated() {
+    sum += hand.bid * (rank + 1)
 }
 
 print(sum)
