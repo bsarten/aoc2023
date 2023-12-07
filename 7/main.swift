@@ -1,5 +1,21 @@
 import Foundation
 
+extension Array where Element: Comparable{
+    public static func < (lhs: Array<Element>, rhs: Array<Element>) -> Bool {
+        for index in 0..<lhs.count {
+            if rhs.count-1 < index {
+                return true
+            }
+
+            if (lhs[index] != rhs[index]) {
+                return lhs[index] < rhs[index]
+            }
+
+        }
+        return false
+    }
+}
+
 struct CardCollectionCounts {
     var pairs = 0
     var threes = 0
@@ -38,26 +54,25 @@ struct Hand {
     ]
 
     static func getCardCounts(_ cards : String) -> [Character:Int] {
-        var card_count = [Character:Int]()
-        for card in Array(cards) {
-            card_count[card, default: 0] += 1
-        }
-        return card_count
+        return Array(cards).reduce(into: [:]){$0[$1, default: 0] += 1}
     }
 
     init(_ cards : String, _ bid : Int, using_jokers : Bool) {
         self.cards = cards
         self.bid = bid
+        
+        let rank_cards : String
 
         if using_jokers {
-            let card_count = Hand.getCardCounts(cards)
+            let card_count = Hand.getCardCounts(cards) 
             let max_card = card_count.max(by: {($0.key == "J" ? 0 : $0.value) < ($1.key == "J" ? 0 : $1.value)})
-            let cards_joker_replaced = String(cards.map{$0 == "J" ? max_card!.key : $0})
-            self.hand_rank = Hand.getHandRank(cards_joker_replaced)
+            rank_cards = String(cards.map{$0 == "J" ? max_card!.key : $0})
         }
         else {
-            self.hand_rank = Hand.getHandRank(cards)
+            rank_cards = cards
         }
+
+        self.hand_rank = Hand.getHandRank(rank_cards)
     }
 
 
@@ -83,7 +98,7 @@ struct Hand {
     }
 
     static func getHandRank(_ cards : String) -> HandRank {
-        var hand_rank : HandRank
+        let hand_rank : HandRank
         let card_collection_counts = getCardCollectionCounts(cards)
 
         if card_collection_counts.fives == 1 {
@@ -113,17 +128,24 @@ struct Hand {
 
     static func < (lhs : Hand, rhs : Hand) -> Bool {
         if lhs.hand_rank.rawValue == rhs.hand_rank.rawValue {
-            let rhs_cards = Array(rhs.cards)
-            let lhs_cards = Array(lhs.cards)
-            for i in 0...4 {
-                if lhs_cards[i] != rhs_cards[i] {
-                    return card_value[String(lhs_cards[i])]! < card_value[String(rhs_cards[i])]!
-                }
-            }
+            let rhs_cards = rhs.cards.map{card_value[String($0)]!}
+            let lhs_cards = lhs.cards.map{card_value[String($0)]!}
+            return lhs_cards < rhs_cards
         }
 
         return lhs.hand_rank.rawValue < rhs.hand_rank.rawValue
-    }
+        //        if lhs.hand_rank.rawValue == rhs.hand_rank.rawValue {
+        //     let rhs_cards = Array(rhs.cards)
+        //     let lhs_cards = Array(lhs.cards)
+        //     for i in 0...4 {
+        //         if lhs_cards[i] != rhs_cards[i] {
+        //             return card_value[String(lhs_cards[i])]! < card_value[String(rhs_cards[i])]!
+        //         }
+        //     }
+        // }
+
+        // return lhs.hand_rank.rawValue < rhs.hand_rank.rawValue
+    } 
 }
 
 func part1(_ lines : [String]) {
