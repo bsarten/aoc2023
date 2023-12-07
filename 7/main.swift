@@ -134,17 +134,6 @@ struct Hand {
         }
 
         return lhs.hand_rank.rawValue < rhs.hand_rank.rawValue
-        //        if lhs.hand_rank.rawValue == rhs.hand_rank.rawValue {
-        //     let rhs_cards = Array(rhs.cards)
-        //     let lhs_cards = Array(lhs.cards)
-        //     for i in 0...4 {
-        //         if lhs_cards[i] != rhs_cards[i] {
-        //             return card_value[String(lhs_cards[i])]! < card_value[String(rhs_cards[i])]!
-        //         }
-        //     }
-        // }
-
-        // return lhs.hand_rank.rawValue < rhs.hand_rank.rawValue
     } 
 }
 
