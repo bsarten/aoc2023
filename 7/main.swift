@@ -1,5 +1,12 @@
 import Foundation
 
+struct CardCollectionCounts {
+    var pairs = 0
+    var threes = 0
+    var fives = 0
+    var fours = 0
+}
+
 struct Hand {
     let cards : String
     let bid : Int
@@ -20,15 +27,20 @@ struct Hand {
         "A" : 14
     ]
 
-    init(_ cards : String, _ bid : Int, _ using_jokers : Bool){
+    static func getCardCounts(_ cards : String) -> [Character:Int] {
+        var card_count = [Character:Int]()
+        for card in Array(cards) {
+            card_count[card, default: 0] += 1
+        }
+        return card_count
+    }
+
+    init(_ cards : String, _ bid : Int, _ using_jokers : Bool) {
         self.cards = cards
         self.bid = bid
 
         if using_jokers {
-            var card_count = [Character:Int]()
-            for card in Array(cards) {
-                card_count[card, default: 0] += 1
-            }
+            let card_count = Hand.getCardCounts(cards)
             let max_card = card_count.max(by: {($0.key == "J" ? 0 : $0.value) < ($1.key == "J" ? 0 : $1.value)})
             let cards_joker_replaced = String(cards.map{$0 == "J" ? max_card!.key : $0})
             self.hand_type = Hand.getHandType(cards_joker_replaced)
@@ -38,49 +50,48 @@ struct Hand {
         }
     }
 
-    static func getHandType(_ cards : String) -> Int {
-        var hand_type : Int
-        var card_count = [Character:Int]()
-        for card in Array(cards) {
-            card_count[card, default: 0] += 1
-        }
 
-        var pairs = 0
-        var threes = 0
-        var fours = 0
-        var fives = 0
-
+    static func getCardCollectionCounts(_ cards : String) -> CardCollectionCounts {
+        let card_count = Hand.getCardCounts(cards)
+        var counts = CardCollectionCounts()
         for (_, count) in card_count {
             switch count {
                 case 2 :
-                    pairs += 1
+                    counts.pairs += 1
                 case 3 :
-                    threes += 1
+                    counts.threes += 1
                 case 4 :
-                    fours += 1
+                    counts.fours += 1
                 case 5 :
-                    fives += 1
+                    counts.fives += 1
                 default :
                     break
             }
         }
-        
-        if fives == 1 {
+
+        return counts
+    }
+
+    static func getHandType(_ cards : String) -> Int {
+        var hand_type : Int
+        let card_collection_counts = getCardCollectionCounts(cards)
+
+        if card_collection_counts.fives == 1 {
             hand_type = 7
         }
-        else if fours == 1 {
+        else if card_collection_counts.fours == 1 {
             hand_type = 6
         }
-        else if pairs == 1 && threes == 1 {
+        else if card_collection_counts.pairs == 1 && card_collection_counts.threes == 1 {
             hand_type = 5
         }
-        else if threes == 1 {
+        else if card_collection_counts.threes == 1 {
             hand_type = 4
         }
-        else if pairs == 2 {
+        else if card_collection_counts.pairs == 2 {
             hand_type = 3
         }
-        else if pairs == 1 {
+        else if card_collection_counts.pairs == 1 {
             hand_type = 2
         }
         else {
