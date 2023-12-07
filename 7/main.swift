@@ -10,7 +10,6 @@ extension Array where Element: Comparable{
             if (lhs[index] != rhs[index]) {
                 return lhs[index] < rhs[index]
             }
-
         }
         return false
     }
@@ -137,30 +136,14 @@ struct Hand {
     } 
 }
 
-func part1(_ lines : [String]) {
+func do_part(_ lines : [String], using_jokers: Bool) {
     var hands = [Hand]()
+
+    Hand.card_value["J"] = using_jokers ? 1 : 11
 
     for line in lines {
         let hand_bid_array = line.components(separatedBy: " ")
-        let new_hand = Hand(hand_bid_array[0], Int(hand_bid_array[1])!, using_jokers: false) 
-        hands.append(new_hand)
-    }
-
-    var sum = 0
-    for (rank, hand) in hands.sorted(by: <).enumerated() {
-        sum += hand.bid * (rank + 1)
-    }
-
-    print(sum)
-}
-
-func part2(_ lines : [String]) {
-    var hands = [Hand]()
-
-    Hand.card_value["J"] = 1
-    for line in lines {
-        let hand_bid_array = line.components(separatedBy: " ")
-        let new_hand = Hand(hand_bid_array[0], Int(hand_bid_array[1])!, using_jokers: true) 
+        let new_hand = Hand(hand_bid_array[0], Int(hand_bid_array[1])!, using_jokers: using_jokers) 
         hands.append(new_hand)
     }
 
@@ -175,6 +158,6 @@ func part2(_ lines : [String]) {
 let input_path = URL(fileURLWithPath: Process().currentDirectoryURL!.path + "/input.txt")
 let lines = try String(contentsOf: input_path).components(separatedBy:"\n").filter{!$0.isEmpty}
 
-part1(lines)
-part2(lines)
+do_part(lines, using_jokers: false)
+do_part(lines, using_jokers: true)
 
