@@ -35,7 +35,7 @@ struct Hand {
         return card_count
     }
 
-    init(_ cards : String, _ bid : Int, _ using_jokers : Bool) {
+    init(_ cards : String, _ bid : Int, using_jokers : Bool) {
         self.cards = cards
         self.bid = bid
 
@@ -121,7 +121,7 @@ func part1(_ lines : [String]) {
 
     for line in lines {
         let hand_bid_array = line.components(separatedBy: " ")
-        hands.append(Hand(hand_bid_array[0], Int(hand_bid_array[1])!, false))
+        hands.append(Hand(hand_bid_array[0], Int(hand_bid_array[1])!, using_jokers: false))
     }
 
     var sum = 0
@@ -138,7 +138,7 @@ func part2(_ lines : [String]) {
     Hand.card_value["J"] = 1
     for line in lines {
         let hand_bid_array = line.components(separatedBy: " ")
-        hands.append(Hand(hand_bid_array[0], Int(hand_bid_array[1])!, true))
+        hands.append(Hand(hand_bid_array[0], Int(hand_bid_array[1])!, using_jokers: true))
     }
 
     var sum = 0
