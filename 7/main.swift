@@ -15,41 +15,26 @@ extension Array where Element: Comparable{
     }
 }
 
-struct CardCollectionCounts {
-    var pairs = 0
-    var threes = 0
-    var fives = 0
-    var fours = 0
-}
-
 struct Hand {
     let cards : String
     let bid : Int
     let hand_rank : HandRank
+
+    // each place contains the number of cards
+    // from five-of-a-kind to four-of-a-kind...down to 1-of-a-kind
     enum HandRank : Int {
-        case five_kind = 7
-        case four_kind = 6
-        case full_house = 5
-        case three_kind = 4
-        case two_pair = 3
-        case one_pair = 2
-        case high_card = 1
+        case five_kind = 10000
+        case four_kind = 01001
+        case full_house = 00110
+        case three_kind = 00102
+        case two_pair = 00021
+        case one_pair = 00013
+        case high_card = 00005
     }
 
-    static var card_value = [
-        "2" : 2,
-        "3" : 3,
-        "4" : 4,
-        "5" : 5,
-        "6" : 6,
-        "7" : 7,
-        "8" : 8,
-        "9" : 9,
-        "T" : 10,
-        "J" : 11,
-        "Q" : 12,
-        "K" : 13,
-        "A" : 14
+    static var card_value = [ "2" : 2, "3" : 3, "4" : 4, "5" : 5,
+        "6" : 6, "7" : 7, "8" : 8, "9" : 9, "T" : 10, "J" : 11,
+        "Q" : 12, "K" : 13, "A" : 14 
     ]
 
     static func getCardCounts(_ cards : String) -> [Character:Int] {
@@ -74,55 +59,20 @@ struct Hand {
         self.hand_rank = Hand.getHandRank(rank_cards)
     }
 
-
-    static func getCardCollectionCounts(_ cards : String) -> CardCollectionCounts {
+    static func getCardCollectionCounts(_ cards : String) -> [Int] {
+        var counts = [0, 0, 0, 0, 0]
         let card_count = Hand.getCardCounts(cards)
-        var counts = CardCollectionCounts()
         for (_, count) in card_count {
-            switch count {
-                case 2 :
-                    counts.pairs += 1
-                case 3 :
-                    counts.threes += 1
-                case 4 :
-                    counts.fours += 1
-                case 5 :
-                    counts.fives += 1
-                default :
-                    break
-            }
+            counts[count - 1] += 1
         }
 
         return counts
     }
 
     static func getHandRank(_ cards : String) -> HandRank {
-        let hand_rank : HandRank
         let card_collection_counts = getCardCollectionCounts(cards)
-
-        if card_collection_counts.fives == 1 {
-            hand_rank = HandRank.five_kind
-        }
-        else if card_collection_counts.fours == 1 {
-            hand_rank = HandRank.four_kind
-        }
-        else if card_collection_counts.pairs == 1 && card_collection_counts.threes == 1 {
-            hand_rank = HandRank.full_house
-        }
-        else if card_collection_counts.threes == 1 {
-            hand_rank = HandRank.three_kind
-        }
-        else if card_collection_counts.pairs == 2 {
-            hand_rank = HandRank.two_pair
-        }
-        else if card_collection_counts.pairs == 1 {
-            hand_rank = HandRank.one_pair
-        }
-        else {
-            hand_rank = HandRank.high_card
-        }
-
-       return hand_rank
+        let counts = Int(card_collection_counts.reversed().reduce(""){$0 + String($1)})!
+        return HandRank(rawValue: counts)!
     }
 
     static func < (lhs : Hand, rhs : Hand) -> Bool {
