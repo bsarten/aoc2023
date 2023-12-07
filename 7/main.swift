@@ -3,7 +3,7 @@ import Foundation
 struct Hand {
     let cards : String
     let bid : Int
-    let hand_type : HandType
+    let hand_type : Int
     static var card_value = [
         "2" : 2,
         "3" : 3,
@@ -20,43 +20,26 @@ struct Hand {
         "A" : 14
     ]
 
-    enum HandType : Int {
-        case five_kind
-        case four_kind
-        case full_house
-        case three_kind
-        case two_pair
-        case one_pair
-        case high_card
+    init(_ cards : String, _ bid : Int, _ using_jokers : Bool){
+        self.cards = cards
+        self.bid = bid
 
-        func get() -> Int {
-            switch self {
-                case .five_kind:
-                    return 7
-                case .four_kind:
-                    return 6
-                case .full_house:
-                    return 5
-                case .three_kind:
-                    return 4
-                case .two_pair:
-                    return 3
-                case .one_pair:
-                    return 2
-                case .high_card:
-                    return 1
+        if using_jokers {
+            var card_count = [Character:Int]()
+            for card in Array(cards) {
+                card_count[card, default: 0] += 1
             }
+            let max_card = card_count.max(by: {($0.key == "J" ? 0 : $0.value) < ($1.key == "J" ? 0 : $1.value)})
+            let cards_joker_replaced = String(cards.map{$0 == "J" ? max_card!.key : $0})
+            self.hand_type = Hand.getHandType(cards_joker_replaced)
+        }
+        else {
+            self.hand_type = Hand.getHandType(cards)
         }
     }
 
-    init(_ cards : String, _ bid : Int){
-        self.cards = cards
-        self.bid = bid
-        self.hand_type = Hand.getHandType(cards)
-    }
-
-    static func getHandType(_ cards : String) -> HandType {
-        var hand_type = HandType.high_card
+    static func getHandType(_ cards : String) -> Int {
+        var hand_type : Int
         var card_count = [Character:Int]()
         for card in Array(cards) {
             card_count[card, default: 0] += 1
@@ -66,7 +49,6 @@ struct Hand {
         var threes = 0
         var fours = 0
         var fives = 0
-        let jokers = card_count["J"] ?? 0
 
         for (_, count) in card_count {
             switch count {
@@ -84,58 +66,25 @@ struct Hand {
         }
         
         if fives == 1 {
-            hand_type = HandType.five_kind
+            hand_type = 7
         }
         else if fours == 1 {
-            if jokers == 0 {
-                hand_type = HandType.four_kind
-            }
-            else {
-                hand_type = HandType.five_kind
-            }
+            hand_type = 6
         }
         else if pairs == 1 && threes == 1 {
-            if jokers == 2 || jokers == 3{
-                hand_type = HandType.five_kind
-            }
-            else {
-                hand_type = HandType.full_house
-            }
+            hand_type = 5
         }
         else if threes == 1 {
-            if jokers == 3 || jokers == 1 {
-                hand_type = HandType.four_kind
-            }
-            else {
-                hand_type = HandType.three_kind
-            }
+            hand_type = 4
         }
         else if pairs == 2 {
-            if jokers == 2 {
-                hand_type = HandType.four_kind
-            }
-            else if jokers == 1 {
-                hand_type = HandType.full_house
-            }
-            else {
-                hand_type = HandType.two_pair
-            }
+            hand_type = 3
         }
         else if pairs == 1 {
-            if jokers == 2 || jokers == 1{
-                hand_type = HandType.three_kind
-            }
-            else {
-                hand_type = HandType.one_pair
-            }
+            hand_type = 2
         }
         else {
-            if jokers == 1 {
-                hand_type = HandType.one_pair
-            }
-            else {
-                hand_type = HandType.high_card
-            }
+            hand_type = 1
         }
 
        return hand_type
@@ -152,27 +101,46 @@ struct Hand {
             }
         }
 
-        return lhs.hand_type.get() < rhs.hand_type.get()
+        return lhs.hand_type < rhs.hand_type
     }
 }
 
-let input_path = Process().currentDirectoryURL!.path + "/input.txt"
+func part1(_ lines : [String]) {
+    var hands = [Hand]()
 
-if freopen(input_path, "r", stdin) == nil {
-    perror(input_path)
-    exit(1)
+    for line in lines {
+        let hand_bid_array = line.components(separatedBy: " ")
+        hands.append(Hand(hand_bid_array[0], Int(hand_bid_array[1])!, false))
+    }
+
+    var sum = 0
+    for (rank, hand) in hands.sorted(by: <).enumerated() {
+        sum += hand.bid * (rank + 1)
+    }
+
+    print(sum)
 }
 
-// part 2
-var hands = [Hand]()
-while let line = readLine() {
-    let hand_bid_array = line.components(separatedBy: " ")
-    hands.append(Hand(hand_bid_array[0], Int(hand_bid_array[1])!))
+func part2(_ lines : [String]) {
+    var hands = [Hand]()
+
+    Hand.card_value["J"] = 1
+    for line in lines {
+        let hand_bid_array = line.components(separatedBy: " ")
+        hands.append(Hand(hand_bid_array[0], Int(hand_bid_array[1])!, true))
+    }
+
+    var sum = 0
+    for (rank, hand) in hands.sorted(by: <).enumerated() {
+        sum += hand.bid * (rank + 1)
+    }
+
+    print(sum)
 }
 
-var sum = 0
-for (rank, hand) in hands.sorted(by: <).enumerated() {
-    sum += hand.bid * (rank + 1)
-}
+let input_path = URL(fileURLWithPath: Process().currentDirectoryURL!.path + "/input.txt")
+let lines = try String(contentsOf: input_path).components(separatedBy:"\n").filter{!$0.isEmpty}
 
-print(sum)
+part1(lines)
+part2(lines)
+
