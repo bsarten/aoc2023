@@ -12,6 +12,22 @@ struct MapNode {
     }
 }
 
+func gcd (_ a : Int, _ b : Int) -> Int {
+    let ma = abs(a); 
+    let mb = abs(b);
+    return (mb==0) ? ma : gcd(mb, ma%mb);
+}
+
+func lcm(_ arr : [Int]) -> Int {
+    var ans = arr[0];
+ 
+    for val in arr.dropFirst() {
+        ans = val * ans / gcd(val, ans)
+    }
+ 
+    return ans;
+}
+
 func find_steps(_ map : inout [String:MapNode], _ directions : inout [String], _ node_name : String, _ end_node : String) -> Int {
     var steps = 0
     var index = 0
@@ -70,5 +86,4 @@ for map_line in lines.dropFirst(1) {
 print(find_steps(&map, &directions, root_name, "ZZZ"))
 
 // part 2
-print("LCM of : ")
-print(part2(&map, &directions, root_name))
+print(lcm(part2(&map, &directions, root_name)))
