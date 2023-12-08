@@ -20,7 +20,7 @@ struct Hand {
     let bid : Int
     let hand_rank : HandRank
 
-    // each place contains the number of cards
+    // each place contains the number of card groups
     // from five-of-a-kind to four-of-a-kind...down to 1-of-a-kind
     enum HandRank : Int {
         case five_kind = 10000
