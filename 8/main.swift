@@ -12,7 +12,7 @@ struct MapNode {
     }
 }
 
-func part1(_ map : inout [String:MapNode], _ directions : inout [String], _ node_name : String, _ end_node : String) -> Int {
+func find_steps(_ map : inout [String:MapNode], _ directions : inout [String], _ node_name : String, _ end_node : String) -> Int {
     var steps = 0
     var index = 0
 
@@ -40,7 +40,7 @@ func part2(_ map : inout [String:MapNode], _ directions : inout [String], _ node
     }
     var loop_lengths = [Int]()
     for check_name in a_nodes {
-        loop_lengths.append(part1(&map, &directions, check_name, "Z"))
+        loop_lengths.append(find_steps(&map, &directions, check_name, "Z"))
     }
 
     return loop_lengths
@@ -66,6 +66,9 @@ for map_line in lines.dropFirst(1) {
     map[node_name] = MapNode(node_name, left_name, right_name)
 }
 
-print(part1(&map, &directions, root_name, "ZZZ"))
+// part 1
+print(find_steps(&map, &directions, root_name, "ZZZ"))
+
+// part 2
 print("LCM of : ")
 print(part2(&map, &directions, root_name))
