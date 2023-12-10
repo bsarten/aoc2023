@@ -1,6 +1,5 @@
 import Foundation
 
-
 struct Coordinate {
     var x = 0
     var y = 0
@@ -10,8 +9,7 @@ struct Coordinate {
         self.y = y
     }
 
-    static func += (_ lhs : inout Coordinate, _ rhs : Coordinate)
-    {
+    static func += (_ lhs : inout Coordinate, _ rhs : Coordinate) {
         lhs.x += rhs.x
         lhs.y += rhs.y
     }
@@ -110,7 +108,6 @@ class Day10 {
         var steps = 0
         var current_location = start
 
-
         while true {
             traversed.set(current_location, map.get(current_location))
             if map.get(current_location) == "S" {
@@ -156,10 +153,7 @@ class Day10 {
 
         return count
     }
-
 }
-
-
 
 let input_path = URL(fileURLWithPath: Process().currentDirectoryURL!.path + "/input.txt")
 let lines = try String(contentsOf: input_path).components(separatedBy:"\n").filter{!$0.isEmpty}
