@@ -9,6 +9,16 @@ struct Coordinate {
         self.x = x
         self.y = y
     }
+
+    static func += (_ lhs : inout Coordinate, _ rhs : Coordinate)
+    {
+        lhs.x += rhs.x
+        lhs.y += rhs.y
+    }
+
+    static func + (_ lhs : Coordinate, _ rhs : Coordinate) -> Coordinate {
+        return Coordinate( lhs.y + rhs.y, lhs.x + rhs.x)
+    }
 }
 
 func find_start_connection(_ map: [[Character]], _ start : Coordinate) -> Coordinate {
@@ -29,93 +39,51 @@ func find_start_connection(_ map: [[Character]], _ start : Coordinate) -> Coordi
     }
 }
 
-func find_path_length(_ map : [[Character]], _ traversed : inout [[Character]], _ start : Coordinate) -> Int {
-    let char_translate : [Character:Character] = [
-        "|" : "│",
-        "J" : "┘",
-        "L" : "└",
-        "-" : "━",
-        "F" : "┌",
-        "7" : "┐",
-        "S" : "S"
-    ]
+struct PipeTraversal {
+    let first_exit : Coordinate
+    let second_exit : Coordinate
+    
+    init(_ first_exit : Coordinate, _ second_exit : Coordinate) {
+        self.first_exit = first_exit
+        self.second_exit = second_exit
+    }
+}
 
+func find_path_length(_ map : [[Character]], _ traversed : inout [[Character]], _ start : Coordinate) -> Int {
     var steps = 0
     var current_location = start
-    repeat {
-        traversed[current_location.y][current_location.x] = char_translate[map[current_location.y][current_location.x]] ?? " "
-        switch map[current_location.y][current_location.x] {
-            case "J":
-                if traversed[current_location.y-1][current_location.x] != " "{
-                    current_location.x -= 1
-                }
-                else if traversed[current_location.y-1][current_location.x] == " "{
-                    current_location.y -= 1
-                }
-                else {
-                    break
-                }
-            case "L":
-                if traversed[current_location.y-1][current_location.x] != " "{
-                    current_location.x += 1
-                }
-                else if traversed[current_location.y-1][current_location.x] == " "{
-                    current_location.y -= 1
-                }
-                else {
-                    break
-                }
-            case "F":
-                if traversed[current_location.y+1][current_location.x] != " "{
-                    current_location.x += 1
-                }
-                else if traversed[current_location.y+1][current_location.x] == " "{
-                    current_location.y += 1
-                }
-                else {
-                    break
-                }
-            case "|":
-                if traversed[current_location.y+1][current_location.x] != " " {
-                    current_location.y -= 1
-                }
-                else if traversed[current_location.y+1][current_location.x] == " "{
-                    current_location.y += 1
-                }
-                else {
-                    break
-                }
-            case "-":
-                if traversed[current_location.y][current_location.x+1] != " "{
-                    current_location.x -= 1
-                }
-                else if traversed[current_location.y][current_location.x+1] == " "{
-                    current_location.x += 1
-                }
-                else {
-                    break
-                }
-            case "7":
-                if traversed[current_location.y][current_location.x-1] != " "{
-                    current_location.y += 1
-                }
-                else if traversed[current_location.y][current_location.x-1] == " "{
-                    current_location.x -= 1
-                }
-                else {
-                    break
-                }
-            case "S":
-                current_location = find_start_connection(map, current_location)
-            default :
-                exit(0)
-        }
-        steps += 1
 
-        if traversed[current_location.y][current_location.x] != " "{
-            break
+    let traversal_map : [Character : PipeTraversal] = [
+        "J" : PipeTraversal(Coordinate(-1,0), Coordinate(0, -1)),
+        "L" : PipeTraversal(Coordinate(-1,0), Coordinate(0, 1)),
+        "F" : PipeTraversal(Coordinate(1,0), Coordinate(0, 1)),
+        "|" : PipeTraversal(Coordinate(1,0), Coordinate(-1, 0)),
+        "-" : PipeTraversal(Coordinate(0,1), Coordinate(0, -1)),
+        "7" : PipeTraversal(Coordinate(0,-1), Coordinate(1, 0))
+    ]
+
+    while true {
+        traversed[current_location.y][current_location.x] = map[current_location.y][current_location.x]
+        if map[current_location.y][current_location.x] == "S" {
+            current_location = find_start_connection(map, current_location)
         }
-    } while map[current_location.y][current_location.x] != "S"
+        else {
+            let traverse = traversal_map[map[current_location.y][current_location.x]]!
+            let first_exit = current_location + traverse.first_exit
+            let second_exit = current_location + traverse.second_exit
+            if traversed[first_exit.y][first_exit.x] != " " && traversed[second_exit.y][second_exit.x] != " " {
+                break
+            }
+            else if traversed[first_exit.y][first_exit.x] != " " {
+                current_location = second_exit
+            }
+            else {
+                current_location = first_exit
+            }
+        }
+
+        steps += 1
+    }
 
     return steps
 }
@@ -125,12 +93,12 @@ func count_inside_tiles(_ traversed: inout [[Character]]) -> Int {
     for col in 0..<traversed[0].count {
         var inside = false
         for row in 0..<traversed.count {
-            if ["│", "┐", "┌", "S"].contains(traversed[col][row]) {
+            if ["|", "7", "F", "S"].contains(traversed[col][row]) {
                 inside = !inside
             }
 
             if inside && traversed[col][row] == " " {
-                traversed[col][row] = "*"
+                traversed[col][row] = " "
                 count += 1
             }
         }
