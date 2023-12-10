@@ -53,13 +53,18 @@ func find_path_length(_ map : [[Character]], _ traversed : inout [[Character]], 
     var steps = 0
     var current_location = start
 
+    let LEFT = Coordinate(0, -1)
+    let RIGHT = Coordinate(0, 1)
+    let UP = Coordinate(-1, 0)
+    let DOWN = Coordinate(1, 0)
+
     let traversal_map : [Character : PipeTraversal] = [
-        "J" : PipeTraversal(Coordinate(-1,0), Coordinate(0, -1)),
-        "L" : PipeTraversal(Coordinate(-1,0), Coordinate(0, 1)),
-        "F" : PipeTraversal(Coordinate(1,0), Coordinate(0, 1)),
-        "|" : PipeTraversal(Coordinate(1,0), Coordinate(-1, 0)),
-        "-" : PipeTraversal(Coordinate(0,1), Coordinate(0, -1)),
-        "7" : PipeTraversal(Coordinate(0,-1), Coordinate(1, 0))
+        "J" : PipeTraversal(UP, LEFT),
+        "L" : PipeTraversal(UP, RIGHT),
+        "F" : PipeTraversal(DOWN, RIGHT),
+        "|" : PipeTraversal(UP, DOWN),
+        "-" : PipeTraversal(LEFT, RIGHT),
+        "7" : PipeTraversal(LEFT, DOWN)
     ]
 
     while true {
