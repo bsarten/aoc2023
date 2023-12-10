@@ -21,24 +21,6 @@ struct Coordinate {
     }
 }
 
-func find_start_connection(_ map: [[Character]], _ start : Coordinate) -> Coordinate {
-    if map[start.y][start.x+1] == "J" || map[start.y][start.x+1] == "-" {
-        return Coordinate(start.y,start.x+1)
-    }
-    else if map[start.y][start.x-1] == "F" || map[start.y][start.x-1] == "-" {
-        return Coordinate(start.y,start.x-1)
-    }
-    else if map[start.y+1][start.x] == "L" || map[start.y+1][start.x] == "|" {
-        return Coordinate(start.y+1, start.x)
-    }
-    else if map[start.y-1][start.x] == "7" || map[start.y-1][start.x] == "|" {
-        return Coordinate(start.y-1, start.x)
-    }
-    else {
-        exit(0)
-    }
-}
-
 struct PipeTraversal {
     let first_exit : Coordinate
     let second_exit : Coordinate
@@ -49,96 +31,144 @@ struct PipeTraversal {
     }
 }
 
-func find_path_length(_ map : [[Character]], _ traversed : inout [[Character]], _ start : Coordinate) -> Int {
-    var steps = 0
-    var current_location = start
+struct Map {
+    var map = [[Character]]()
 
-    let LEFT = Coordinate(0, -1)
-    let RIGHT = Coordinate(0, 1)
-    let UP = Coordinate(-1, 0)
-    let DOWN = Coordinate(1, 0)
+    mutating func set(_ coordinate : Coordinate, _ char : Character) {
+        map[coordinate.y][coordinate.x] = char
+    }
 
-    let traversal_map : [Character : PipeTraversal] = [
-        "J" : PipeTraversal(UP, LEFT),
-        "L" : PipeTraversal(UP, RIGHT),
-        "F" : PipeTraversal(DOWN, RIGHT),
-        "|" : PipeTraversal(UP, DOWN),
-        "-" : PipeTraversal(LEFT, RIGHT),
-        "7" : PipeTraversal(LEFT, DOWN)
-    ]
+    func get(_ coordinate : Coordinate) -> Character {
+        return map[coordinate.y][coordinate.x]
+    }
+}
 
-    while true {
-        traversed[current_location.y][current_location.x] = map[current_location.y][current_location.x]
-        if map[current_location.y][current_location.x] == "S" {
-            current_location = find_start_connection(map, current_location)
+class Day10 {
+    var start = Coordinate(0,0)
+    var map = Map() 
+    var traversed = Map() 
+
+    let LEFT : Coordinate
+    let RIGHT : Coordinate
+    let UP : Coordinate
+    let DOWN : Coordinate
+
+    let traversal_map : [Character : PipeTraversal] 
+
+    init(_ lines : [String]) {
+        LEFT = Coordinate(0, -1)
+        RIGHT = Coordinate(0, 1)
+        UP = Coordinate(-1, 0)
+        DOWN = Coordinate(1, 0)
+
+        traversal_map = [
+            "J" : PipeTraversal(UP, LEFT),
+            "L" : PipeTraversal(UP, RIGHT),
+            "F" : PipeTraversal(DOWN, RIGHT),
+            "|" : PipeTraversal(UP, DOWN),
+            "-" : PipeTraversal(LEFT, RIGHT),
+            "7" : PipeTraversal(LEFT, DOWN)
+        ]
+        
+        map.map.append(Array(repeating:"x", count: lines[0].count + 2))
+        traversed.map.append(Array(repeating:" ", count: lines[0].count + 2))
+        for (y, line) in  lines.enumerated() {
+            var new_line = Array(line)
+            new_line.insert("x", at:0)
+            new_line.append("x")
+            map.map.append(new_line)
+            traversed.map.append(Array(repeating: " ", count: new_line.count))
+            guard let x = Array(new_line).firstIndex(of: "S") else {
+                continue
+            }
+
+            start = Coordinate(y+1, new_line.distance(from:0, to:x))
+        }
+        map.map.append(Array(repeating:"x", count: lines[0].count + 2))
+        traversed.map.append(Array(repeating:" ", count: lines[0].count + 2))
+    }
+    
+    private func find_start_connection() -> Coordinate {
+        if map.get(start + RIGHT) == "J" || map.get(start + RIGHT) == "-" {
+            return start + RIGHT
+        }
+        else if map.get(start + LEFT) == "F" || map.get(start + LEFT) == "-" {
+            return start + LEFT
+        }
+        else if map.get(start + UP) == "L" || map.get(start + UP) == "|" {
+            return start + UP
+        }
+        else if map.get(start + DOWN) == "7" || map.get(start + DOWN) == "|" {
+            return start + DOWN
         }
         else {
-            let traverse = traversal_map[map[current_location.y][current_location.x]]!
-            let first_exit = current_location + traverse.first_exit
-            let second_exit = current_location + traverse.second_exit
-            if traversed[first_exit.y][first_exit.x] != " " && traversed[second_exit.y][second_exit.x] != " " {
-                break
-            }
-            else if traversed[first_exit.y][first_exit.x] != " " {
-                current_location = second_exit
+            exit(0)
+        }
+    }
+
+    func find_path_length() -> Int {
+        var steps = 0
+        var current_location = start
+
+
+        while true {
+            traversed.set(current_location, map.get(current_location))
+            if map.get(current_location) == "S" {
+                current_location = find_start_connection()
             }
             else {
-                current_location = first_exit
+                let traverse = traversal_map[map.get(current_location)]!
+                let first_exit = current_location + traverse.first_exit
+                let second_exit = current_location + traverse.second_exit
+                if traversed.get(first_exit) != " " && traversed.get(second_exit) != " " {
+                    break
+                }
+                else if traversed.get(first_exit) != " " {
+                    current_location = second_exit
+                }
+                else {
+                    current_location = first_exit
+                }
+            }
+
+            steps += 1
+        }
+
+        return steps
+    }
+
+    func count_inside_tiles() -> Int {
+        var count = 0
+        for col in 0..<traversed.map[0].count {
+            var inside = false
+            for row in 0..<traversed.map.count {
+                let location = Coordinate(col, row)
+                if ["|", "7", "F", "S"].contains(traversed.get(location)) {
+                    inside = !inside
+                }
+
+                if inside && traversed.get(location) == " " {
+                    traversed.set(location, " ")
+                    count += 1
+                }
             }
         }
 
-        steps += 1
+        return count
     }
 
-    return steps
 }
 
-func count_inside_tiles(_ traversed: inout [[Character]]) -> Int {
-    var count = 0
-    for col in 0..<traversed[0].count {
-        var inside = false
-        for row in 0..<traversed.count {
-            if ["|", "7", "F", "S"].contains(traversed[col][row]) {
-                inside = !inside
-            }
 
-            if inside && traversed[col][row] == " " {
-                traversed[col][row] = " "
-                count += 1
-            }
-        }
-    }
-
-    return count
-}
 
 let input_path = URL(fileURLWithPath: Process().currentDirectoryURL!.path + "/input.txt")
 let lines = try String(contentsOf: input_path).components(separatedBy:"\n").filter{!$0.isEmpty}
 
-var map = [[Character]]()
-var traversed = [[Character]]()
-
-var start : Coordinate?
-map.append(Array(repeating:"x", count: lines[0].count + 2))
-traversed.append(Array(repeating:" ", count: lines[0].count + 2))
-for (y, line) in  lines.enumerated() {
-    var new_line = Array(line)
-    new_line.insert("x", at:0)
-    new_line.append("x")
-    map.append(new_line)
-    traversed.append(Array(repeating: " ", count: new_line.count))
-    guard let x = Array(new_line).firstIndex(of: "S") else {
-        continue
-    }
-
-    start = Coordinate(y+1, new_line.distance(from:0, to:x))
-}
-map.append(Array(repeating:"x", count: lines[0].count + 2))
-traversed.append(Array(repeating:" ", count: lines[0].count + 2))
+let day10 = Day10(lines)
 
 // part 1
-let path_length = find_path_length(map, &traversed, start!)
+let path_length = day10.find_path_length()
 print(path_length / 2)
 
 // part 2
-print(count_inside_tiles(&traversed))
+print(day10.count_inside_tiles())
