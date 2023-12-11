@@ -36,12 +36,13 @@ struct PipeTraversal {
 struct Map {
     var map = [[Character]]()
 
-    mutating func set(_ coordinate : Coordinate, _ char : Character) {
-        map[coordinate.y][coordinate.x] = char
-    }
-
-    func get(_ coordinate : Coordinate) -> Character {
-        return map[coordinate.y][coordinate.x]
+    subscript(_ coordinate : Coordinate) -> Character {
+        get {
+            return map[coordinate.y][coordinate.x]
+        }
+        set {
+            map[coordinate.y][coordinate.x] = newValue
+        }
     }
 }
 
@@ -50,19 +51,14 @@ class Day10 {
     var map = Map() 
     var traversed = Map() 
 
-    let LEFT : Coordinate
-    let RIGHT : Coordinate
-    let UP : Coordinate
-    let DOWN : Coordinate
+    let LEFT = Coordinate(0, -1)
+    let RIGHT = Coordinate(0, 1)
+    let UP = Coordinate(-1, 0)
+    let DOWN = Coordinate(1, 0)
 
     let traversal_map : [Character : PipeTraversal] 
 
     init(_ lines : [String]) {
-        LEFT = Coordinate(0, -1)
-        RIGHT = Coordinate(0, 1)
-        UP = Coordinate(-1, 0)
-        DOWN = Coordinate(1, 0)
-
         traversal_map = [
             "J" : PipeTraversal(UP, LEFT),
             "L" : PipeTraversal(UP, RIGHT),
@@ -91,16 +87,16 @@ class Day10 {
     }
     
     private func find_start_connection() -> Coordinate {
-        if map.get(start + RIGHT) == "J" || map.get(start + RIGHT) == "-" {
+        if map[start + RIGHT] == "J" || map[start + RIGHT] == "-" {
             return start + RIGHT
         }
-        else if map.get(start + LEFT) == "F" || map.get(start + LEFT) == "-" {
+        else if map[start + LEFT] == "F" || map[start + LEFT] == "-" {
             return start + LEFT
         }
-        else if map.get(start + UP) == "L" || map.get(start + UP) == "|" {
+        else if map[start + UP] == "L" || map[start + UP] == "|" {
             return start + UP
         }
-        else if map.get(start + DOWN) == "7" || map.get(start + DOWN) == "|" {
+        else if map[start + DOWN] == "7" || map[start + DOWN] == "|" {
             return start + DOWN
         }
         else {
@@ -114,13 +110,13 @@ class Day10 {
         var last_location : Coordinate?
 
         repeat {
-            traversed.set(current_location, map.get(current_location))
+            traversed[current_location] = map[current_location]
             if current_location == start {
                 current_location = find_start_connection()
                 last_location = start
             }
             else {
-                let traverse = traversal_map[map.get(current_location)]!
+                let traverse = traversal_map[map[current_location]]!
                 let first_exit = current_location + traverse.first_exit
                 let second_exit = current_location + traverse.second_exit
                 let new_location = first_exit == last_location ? second_exit : first_exit
@@ -136,16 +132,16 @@ class Day10 {
 
     func count_inside_tiles() -> Int {
         var count = 0
-        for col in 0..<traversed.map[0].count {
+        for (col, row_arr) in traversed.map.enumerated() {
             var inside = false
-            for row in 0..<traversed.map.count {
+            for (row, pipe_char) in row_arr.enumerated() {
                 let location = Coordinate(col, row)
-                if ["|", "7", "F", "S"].contains(traversed.get(location)) {
+                if ["|", "7", "F", "S"].contains(pipe_char) {
                     inside = !inside
                 }
 
-                if inside && traversed.get(location) == " " {
-                    traversed.set(location, " ")
+                if inside && pipe_char == " " {
+                    traversed[location] = " "
                     count += 1
                 }
             }
