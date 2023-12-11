@@ -1,6 +1,6 @@
 import Foundation
 
-struct Coordinate {
+struct Coordinate : Equatable {
     var x = 0
     var y = 0
 
@@ -16,6 +16,10 @@ struct Coordinate {
 
     static func + (_ lhs : Coordinate, _ rhs : Coordinate) -> Coordinate {
         return Coordinate( lhs.y + rhs.y, lhs.x + rhs.x)
+    }
+
+    static func == (_ lhs : Coordinate, _ rhs : Coordinate) -> Bool {
+        return lhs.x == rhs.x && lhs.y == rhs.y
     }
 }
 
@@ -107,29 +111,25 @@ class Day10 {
     func find_path_length() -> Int {
         var steps = 0
         var current_location = start
+        var last_location : Coordinate?
 
-        while true {
+        repeat {
             traversed.set(current_location, map.get(current_location))
-            if map.get(current_location) == "S" {
+            if current_location == start {
                 current_location = find_start_connection()
+                last_location = start
             }
             else {
                 let traverse = traversal_map[map.get(current_location)]!
                 let first_exit = current_location + traverse.first_exit
                 let second_exit = current_location + traverse.second_exit
-                if traversed.get(first_exit) != " " && traversed.get(second_exit) != " " {
-                    break
-                }
-                else if traversed.get(first_exit) != " " {
-                    current_location = second_exit
-                }
-                else {
-                    current_location = first_exit
-                }
+                let new_location = first_exit == last_location ? second_exit : first_exit
+                last_location = current_location
+                current_location = new_location
             }
 
             steps += 1
-        }
+        } while current_location != start
 
         return steps
     }
