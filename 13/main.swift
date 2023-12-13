@@ -1,8 +1,5 @@
 import Foundation
 
-struct ReflectionLine {
-
-}
 struct Map {
     let rows : [String]
     var columns : [String]
@@ -17,11 +14,13 @@ struct Map {
         }
     }
 
-    func isReflection(in lines : [String], at center : ClosedRange<Int>) -> Bool {
+    func isReflection(in lines : [String], at center : ClosedRange<Int>, _ smudge : Bool) -> Bool {
         var is_reflection = true
         var range = center
+        var differences = 0
         while range.upperBound < lines.count && range.lowerBound >= 0 {
-            if lines[range.upperBound] != lines[range.lowerBound] {
+            differences += Map.compareLine(lines[range.upperBound], lines[range.lowerBound])
+            if differences > (smudge ? 1 : 0) {
                 is_reflection = false
                 break
             }
@@ -29,20 +28,38 @@ struct Map {
             range = (range.lowerBound - 1)...(range.upperBound + 1)
         }
 
+        if smudge && differences != 1 {
+            return false
+        }
         return is_reflection
     }
 
-    func getReflection(in lines : [String]) -> ClosedRange<Int>? {
-        var range : ClosedRange<Int>?
-        for (row, line) in lines.enumerated() {
-            if row == 0 { continue }
-            if line == lines[row - 1] {
-                if isReflection(in: lines, at:row-1...row) {
-                    range = (row-1...row)
-                    break
-                }
+    static func compareLine(_ lhs : String, _ rhs : String) -> Int {
+        if lhs == rhs {
+            return 0
+        }
+
+        var differences = 0
+        for (index, char) in lhs.enumerated() {
+            if char != rhs[rhs.index(rhs.startIndex, offsetBy: index)] {
+                differences += 1
             }
         }
+
+        return differences
+    }
+
+    func getReflection(in lines : [String], _ smudge : Bool) -> ClosedRange<Int>? {
+        var range : ClosedRange<Int>?
+        for (row, _) in lines.enumerated() {
+            if row == 0 { continue }
+            if isReflection(in: lines, at:row-1...row, smudge) {
+                range = (row-1...row)
+                break
+            }
+
+        }
+
         return range
     }
 
@@ -61,19 +78,16 @@ struct Map {
         print()
     }
 
-    func getReflection() -> (ClosedRange<Int>, Bool) {
-        let v_reflection = getReflection(in: rows)
-        let h_reflection = getReflection(in: columns)
-
-        if v_reflection != nil {
-            Map.printReflection(v_reflection!, rows)
+    func getReflection(_ smudge : Bool) -> (ClosedRange<Int>, Bool)? {
+        if let v_reflection = getReflection(in: rows, smudge) {
+            return (v_reflection, true)
         }
 
-        if h_reflection != nil {
-            Map.printReflection(h_reflection!, columns)
+        if let h_reflection = getReflection(in: columns, smudge) {
+            return (h_reflection, false)
         }
 
-        return v_reflection != nil ? (v_reflection!, true) : (h_reflection!, false)
+        return nil 
     }
 }
 
@@ -91,8 +105,20 @@ class Day13 {
     func part1() -> Int {
         var sum = 0
         for map in maps {
-            let (reflection, isVertical) = map.getReflection()
-            sum += isVertical ? (reflection.lowerBound+1) * 100 : reflection.lowerBound + 1
+            if let (reflection, isVertical) = map.getReflection(false) {
+                sum += isVertical ? (reflection.lowerBound+1) * 100 : reflection.lowerBound + 1
+            }
+        }
+        return sum
+    }
+
+
+    func part2() -> Int {
+        var sum = 0
+        for map in maps {
+            if let (reflection, isVertical) = map.getReflection(true) {
+                sum += isVertical ? (reflection.lowerBound+1) * 100 : reflection.lowerBound + 1
+            }
         }
         return sum
     }
@@ -106,3 +132,4 @@ day13.prepareData(with: input)
 
 // part 1 
 print(day13.part1())
+print(day13.part2())
